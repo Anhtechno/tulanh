@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tủ lạnh">
+<title>Tủ lạnh – nhiệt kế số 5</title>
+<style>
+  :root{
+    --nen:#0b1220; --the:#141c2e; --vien:#24304a; --chu:#e8edf7; --mo:#8a96ad;
+    --xanh:#22c55e; --do:#ef4444; --vang:#f59e0b; --lam:#38bdf8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--nen);color:var(--chu);
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+       padding:16px 14px 28px;max-width:560px;margin-inline:auto}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  h1{font-size:18px;margin:0;font-weight:600}
+  .cham{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--mo)}
+  .cham i{width:9px;height:9px;border-radius:50%;background:var(--mo);display:inline-block}
+  .cham.ok i{background:var(--xanh);box-shadow:0 0 0 4px #22c55e22}
+  .cham.loi i{background:var(--do);box-shadow:0 0 0 4px #ef444422}
+  .the{background:var(--the);border:1px solid var(--vien);border-radius:16px;padding:16px;margin-bottom:12px}
+  .chinh{text-align:center;padding:22px 16px 18px;transition:background .3s,border-color .3s}
+  .chinh.nong{background:#3a1216;border-color:#7f1d1d}
+  .nhan{font-size:13px;color:var(--mo);letter-spacing:.04em;text-transform:uppercase}
+  .nhiet{font-size:84px;font-weight:700;line-height:1.05;margin:6px 0 4px;font-variant-numeric:tabular-nums}
+  .nhiet small{font-size:32px;font-weight:600;color:var(--mo);margin-left:4px}
+  .trangthai{display:inline-block;margin-top:6px;padding:6px 12px;border-radius:999px;font-size:14px;font-weight:600}
+  .trangthai.ok{background:#14532d;color:#bbf7d0}
+  .trangthai.nong{background:#7f1d1d;color:#fecaca}
+  .trangthai.mat{background:#78350f;color:#fde68a}
+  .luoi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+  .o{background:var(--the);border:1px solid var(--vien);border-radius:14px;padding:12px 10px;text-align:center}
+  .o b{display:block;font-size:24px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+  .o b.lam{color:var(--lam)}
+  .thanhpin{height:6px;background:#0f172a;border-radius:4px;margin-top:8px;overflow:hidden}
+  .thanhpin span{display:block;height:100%;background:var(--xanh);width:0}
+  .hang{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .hang h2{font-size:15px;margin:0;font-weight:600}
+  .tab{display:flex;gap:6px}
+  .tab button{background:#0f172a;color:var(--mo);border:1px solid var(--vien);border-radius:8px;
+              padding:5px 10px;font-size:13px;cursor:pointer}
+  .tab button.chon{color:var(--chu);border-color:var(--lam)}
+  .bieudo{position:relative;height:220px}
+  .thongke{display:flex;justify-content:space-around;margin-top:10px;font-size:13px;color:var(--mo)}
+  .thongke b{color:var(--chu);font-variant-numeric:tabular-nums}
+  footer{font-size:12px;color:var(--mo);text-align:center;margin-top:16px;line-height:1.7}
+  footer a{color:var(--lam)}
+  .loi-tai{display:none;background:#78350f;color:#fde68a;border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Tủ lạnh · nhiệt kế số 5</h1>
+  <span id="cham" class="cham"><i></i><span id="chamChu">đang tải…</span></span>
+</header>
+
+<div id="loiTai" class="loi-tai"></div>
+
+<section id="theChinh" class="the chinh">
+  <div class="nhan">Nhiệt độ hiện tại</div>
+  <div class="nhiet"><span id="nhiet">--.-</span><small>°C</small></div>
+  <div id="trangThai" class="trangthai">Đang tải dữ liệu…</div>
+</section>
+
+<div class="luoi">
+  <div class="o"><div class="nhan">Độ ẩm</div><b id="doAm" class="lam">-- %</b></div>
+  <div class="o"><div class="nhan">Pin nhiệt kế</div><b id="pin">-- %</b>
+    <div class="thanhpin"><span id="thanhPin"></span></div></div>
+  <div class="o"><div class="nhan">Cập nhật</div><b id="capNhat" style="font-size:18px;margin-top:8px">--</b></div>
+</div>
+
+<section class="the">
+  <div class="hang">
+    <h2>Biểu đồ nhiệt độ</h2>
+    <div class="tab">
+      <button data-gio="6">6 giờ</button>
+      <button data-gio="24" class="chon">24 giờ</button>
+      <button data-gio="168">7 ngày</button>
+    </div>
+  </div>
+  <div class="bieudo"><canvas id="bd"></canvas></div>
+  <div class="thongke">
+    <span>Thấp nhất <b id="tkMin">--</b></span>
+    <span>Trung bình <b id="tkTb">--</b></span>
+    <span>Cao nhất <b id="tkMax">--</b></span>
+  </div>
+</section>
+
+<footer>
+  Ngưỡng cảnh báo: trên <span id="nguongChu">8</span> °C · Tự làm mới mỗi 30 giây<br>
+  Dữ liệu: <a id="linkKenh" href="#">kênh ThingSpeak</a>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ================== CAI DAT ==================
+const KENH          = new URLSearchParams(location.search).get("kenh") || "3582888";
+const NGUONG_NONG   = 8;      // °C, trung voi NGUONG_NONG_C tren board
+const PHUT_MAT_KET_NOI = 5;   // khong co du lieu moi qua 5 phut -> bao mat ket noi
+const LAM_MOI_GIAY  = 30;
+// =============================================
+
+const $ = id => document.getElementById(id);
+$("nguongChu").textContent = NGUONG_NONG;
+$("linkKenh").href = "https://thingspeak.mathworks.com/channels/" + KENH;
+let soGio = 24, bieuDo = null, banGhiCuoi = null;
+
+function thoiGianTruoc(d) {
+  const s = Math.max(0, Math.round((Date.now() - d.getTime()) / 1000));
+  if (s < 60) return s + " giây";
+  if (s < 3600) return Math.round(s / 60) + " phút";
+  if (s < 86400) return Math.round(s / 3600) + " giờ";
+  return Math.round(s / 86400) + " ngày";
+}
+
+function nhanGio(d) {
+  const p = n => String(n).padStart(2, "0");
+  return soGio > 24 ? p(d.getDate()) + "/" + p(d.getMonth() + 1) + " " + p(d.getHours()) + "h"
+                    : p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+function veHienTai() {
+  if (!banGhiCuoi) return;
+  const t = parseFloat(banGhiCuoi.field1), h = parseFloat(banGhiCuoi.field2), pin = parseInt(banGhiCuoi.field3);
+  const luc = new Date(banGhiCuoi.created_at);
+  const mat = (Date.now() - luc.getTime()) / 60000 > PHUT_MAT_KET_NOI;
+  const nong = t > NGUONG_NONG;
+
+  $("nhiet").textContent = isNaN(t) ? "--.-" : t.toFixed(1);
+  $("doAm").textContent  = isNaN(h) ? "-- %" : Math.round(h) + " %";
+  $("pin").textContent   = isNaN(pin) ? "-- %" : pin + " %";
+  $("thanhPin").style.width = (isNaN(pin) ? 0 : Math.min(100, pin)) + "%";
+  $("thanhPin").style.background = pin < 20 ? "var(--do)" : "var(--xanh)";
+  $("capNhat").textContent = thoiGianTruoc(luc) + " trước";
+
+  const tt = $("trangThai"), the = $("theChinh");
+  the.classList.toggle("nong", nong && !mat);
+  if (mat)       { tt.className = "trangthai mat";  tt.textContent = "⚠ Mất kết nối board " + thoiGianTruoc(luc); }
+  else if (nong) { tt.className = "trangthai nong"; tt.textContent = "⚠ Cảnh báo: nóng hơn " + NGUONG_NONG + " °C"; }
+  else           { tt.className = "trangthai ok";   tt.textContent = "✓ Nhiệt độ bình thường"; }
+
+  const cham = $("cham");
+  cham.className = "cham " + (mat ? "loi" : "ok");
+  $("chamChu").textContent = mat ? "mất kết nối" : "trực tuyến";
+}
+
+function veBieuDo(feeds) {
+  const diem = feeds.map(f => ({ d: new Date(f.created_at), t: parseFloat(f.field1) }))
+                    .filter(x => !isNaN(x.t));
+  const nhan = diem.map(x => nhanGio(x.d)), giaTri = diem.map(x => x.t);
+
+  if (giaTri.length) {
+    const mn = Math.min(...giaTri), mx = Math.max(...giaTri),
+          tb = giaTri.reduce((a, b) => a + b, 0) / giaTri.length;
+    $("tkMin").textContent = mn.toFixed(1) + "°";
+    $("tkTb").textContent  = tb.toFixed(1) + "°";
+    $("tkMax").textContent = mx.toFixed(1) + "°";
+  } else {
+    $("tkMin").textContent = $("tkTb").textContent = $("tkMax").textContent = "--";
+  }
+
+  const duLieu = {
+    labels: nhan,
+    datasets: [
+      { label: "Nhiệt độ (°C)", data: giaTri, borderColor: "#f59e0b", backgroundColor: "#f59e0b22",
+        fill: true, tension: .3, pointRadius: 0, borderWidth: 2 },
+      { label: "Ngưỡng " + NGUONG_NONG + "°C", data: giaTri.map(() => NGUONG_NONG), borderColor: "#ef4444",
+        borderDash: [6, 5], pointRadius: 0, borderWidth: 1.5, fill: false }
+    ]
+  };
+  if (bieuDo) { bieuDo.data = duLieu; bieuDo.update("none"); return; }
+  if (typeof Chart === "undefined") return;
+  bieuDo = new Chart($("bd"), {
+    type: "line", data: duLieu,
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { labels: { color: "#8a96ad", boxWidth: 14 } },
+                 tooltip: { callbacks: { label: c => c.dataset.label + ": " + c.parsed.y.toFixed(2) } } },
+      scales: {
+        x: { ticks: { color: "#8a96ad", maxTicksLimit: 6, maxRotation: 0 }, grid: { color: "#1e293b" } },
+        y: { ticks: { color: "#8a96ad" }, grid: { color: "#1e293b" } }
+      }
+    }
+  });
+}
+
+async function taiDuLieu() {
+  try {
+    // ThingSpeak tra toi da 8000 diem; lay trung binh theo nhom khi xem 7 ngay cho gon
+    let url = "https://api.thingspeak.com/channels/" + KENH + "/feeds.json?minutes=" + (soGio * 60);
+    if (soGio > 24) url += "&average=30";
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    if (j === -1 || !j.feeds) throw new Error("Kênh không công khai hoặc sai Channel ID");
+
+    // Ban ghi moi nhat (lay rieng, vi khi xem 7 ngay du lieu da bi lay trung binh)
+    const r2 = await fetch("https://api.thingspeak.com/channels/" + KENH + "/feeds/last.json", { cache: "no-store" });
+    const cuoi = await r2.json();
+    if (cuoi && cuoi.created_at) banGhiCuoi = cuoi;
+
+    $("loiTai").style.display = "none";
+    veHienTai();
+    veBieuDo(j.feeds);
+  } catch (e) {
+    $("loiTai").style.display = "block";
+    $("loiTai").textContent = "Không tải được dữ liệu (" + e.message + "). Đang thử lại…";
+    $("cham").className = "cham loi";
+    $("chamChu").textContent = "lỗi tải";
+  }
+}
+
+document.querySelectorAll(".tab button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tab button").forEach(x => x.classList.remove("chon"));
+  b.classList.add("chon");
+  soGio = parseInt(b.dataset.gio);
+  taiDuLieu();
+}));
+
+taiDuLieu();
+setInterval(taiDuLieu, LAM_MOI_GIAY * 1000);
+setInterval(veHienTai, 10000);   // cap nhat dong "x phut truoc"
+</script>
+</body>
+</html>
